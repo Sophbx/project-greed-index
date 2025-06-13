@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 import yfinance as yf
-import requests
-from json import JSONDecodeError
+
+from greed_fear_index import normalize, compute_greed_index, compute_fear_index
 
 # Fetch OHLCV data
 def fetch_ohlcv(ticker, start ='2010-01-01', end = '2025-06-10'):
@@ -128,8 +128,19 @@ def run_tests():
 if __name__ == '__main__':
     run_tests()
     data = assemble_dataset()
+
+    # Nomralize
+    data['norm_rsi'] = normalize(data['rsi'])
+    data['norm_macd'] = normalize(data['macd'])
+    data['norm_zscore'] = normalize(data['price_zscore'])
+    data['norm_vix'] = 1 - normalize(data['vix_close'])
+
+    # The core index
+    data['greed_index'] = compute_greed_index(data)
+    data['fear_index'] = compute_fear_index(data['greed_index'])
+    
     os.makedirs('raw_data', exist_ok = True)
-    data.to_csv('raw_data/Combined_data.csv', index = True)
-    print("Data collection and feature assembly complete. CSV saved to 'data/Combined_data.csv'.")
+    data.to_csv('raw_data/Combined_data_2010.csv', index = True)
+    print("Data collection and feature assembly complete. CSV saved to 'raw_data/Combined_data_2010.csv'.")
 
 
