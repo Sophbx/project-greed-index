@@ -1,0 +1,8 @@
+
+--- Greed Index Basic | 2025-06-17 21:47:43 ---
+Sharpe ratio: -0.3086
+Max drawdown: 56975.5418
+Total return: -0.5285
+Win rate: 0.4790
+Num trades: 3862.0000
+----------------------------------------
