@@ -7,18 +7,18 @@ from data.greed_fear_index import compute_greed_index
 from analysis.backtest_basic import backtest
 from analysis.metrics import evaluate_strategy
 from analysis.logger import log_metrics
-from analysis.plot import plot_equity_curve, plot_drawdown
+from analysis.plot import plot_equity_curve, plot_drawdown, plot_greed_vs_price
 
 # Step 1: Load and prepare data
 df = assemble_dataset()
 df['greed_index'] = compute_greed_index(df)
 
 # Step 2: Generate signals
-df = generate_greed_index_signals(df, window=20)  # output includes 'signal'
+df = generate_greed_index_signals(df, window=40)  # output includes 'signal'
 
 # Step 3: Save signals for inspection
 os.makedirs('data/raw_data', exist_ok=True)
-df.to_csv('data/raw_data/greed_strategy_signals.csv')
+df.to_csv('data/raw_data/Combined_data_2010.csv')
 
 # Step 4: Backtest
 result_df = backtest(df, signal_col='signal')
@@ -30,5 +30,6 @@ metrics = evaluate_strategy(result_df)
 log_metrics(metrics, strategy_name='Greed Index Basic')
 
 # Step 7: Plot results
-plot_equity_curve(result_df, save_path='logs/greed_strategy_equity.png')
-plot_drawdown(result_df, save_path='logs/greed_strategy_drawdown.png')
+plot_equity_curve(result_df, save_path='logs/basic_strategy_eyquity.png')
+plot_drawdown(result_df, save_path='logs/basic_strategy_drawdown.png')
+plot_greed_vs_price(result_df, save_path='logs/basic_strategy_greed_close.png')

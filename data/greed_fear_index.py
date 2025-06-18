@@ -14,15 +14,18 @@ def compute_greed_index(df: pd.DataFrame) -> pd.Series:
     norm_rsi = normalize(df['rsi'])
     norm_macd = normalize(df['macd'])
     norm_zscore = normalize(df['price_zscore'])
+    norm_atr = normalize(df['atr'], df['atr'].quantile(0.05), df['atr'].quantile(0.95))
     norm_vix = 1 - normalize(df['vix_close'])  # invert: high VIX → fear → low greed
 
     # The weight of each indicator can be tune: compare the performance of the strategies by 
     # adjusting this core index
     greed_index = (
-        0.4 * norm_rsi +
-        0.2 * norm_macd +
+        0.3 * norm_rsi +
         0.2 * norm_zscore +
-        0.2 * norm_vix
+        0.2 * norm_macd +
+        0.1 * norm_atr +
+        0.1 * norm_vix +
+        0.1 * normalize(df['volume_20d_ma'], df['volume_20d_ma'].quantile(0.05), df['volume_20d_ma'].quantile(0.95))
     ).clip(0, 1)
 
     return greed_index

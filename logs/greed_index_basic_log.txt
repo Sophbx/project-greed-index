@@ -6,3 +6,26 @@ Total return: -0.5285
 Win rate: 0.4790
 Num trades: 3862.0000
 ----------------------------------------
+
+--- Greed Index Basic | 2025-06-18 15:28:59 ---
+Sharpe ratio: -0.1412
+Max drawdown: 33741.7003
+Total return: -0.2713
+Win rate: 0.2375
+Num trades: 1895.0000
+
+--- Greed Index Basic | 2025-06-18 15:45:44 ---
+Sharpe ratio: -0.1518
+Max drawdown: 37337.2511
+Total return: -0.2970
+Win rate: 0.2739
+Num trades: 2193.0000
+----------------------------------------
+
+--- Greed Index Basic | 2025-06-18 15:54:40 ---
+Sharpe ratio: -0.0282
+Max drawdown: 27327.7515
+Total return: -0.1232
+Win rate: 0.2479
+Num trades: 1974.0000
+----------------------------------------
