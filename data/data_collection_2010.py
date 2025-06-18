@@ -6,7 +6,7 @@ import yfinance as yf
 from data.greed_fear_index import normalize, compute_greed_index, compute_fear_index
 
 # Fetch OHLCV data
-def fetch_ohlcv(ticker, start ='2010-01-01', end = '2025-06-10'):
+def fetch_ohlcv(ticker, start ='2010-01-01', end = '2025-06-18'):
     """
     Download OHLCV data for a given ticker.
     Returns a DataFrame with columns: open, high, low, close, volume.
@@ -94,7 +94,7 @@ def compute_technical_indicators(df: pd.DataFrame, z_window: int = 20) -> pd.Dat
     return tech
 
 # Assemble all features without dropping rows
-def assemble_dataset(start: str = '2010-01-01', end: str = '2025-06-10') -> pd.DataFrame:
+def assemble_dataset(start: str = '2010-01-01', end: str = '2025-06-18') -> pd.DataFrame:
     start_dt = pd.to_datetime(start)
     warmup_days = 100  # Safe warm-up buffer
     start_with_buffer = (start_dt - pd.Timedelta(days=warmup_days)).strftime('%Y-%m-%d')

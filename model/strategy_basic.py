@@ -12,17 +12,19 @@ def generate_greed_index_signals(df: pd.DataFrame, window: int = 20) -> pd.DataF
     df = df.copy()
     
     df['greed_mean'] = df['greed_index'].rolling(window).mean()
+    df['up_streak'] = (df['close'].diff() > 0).rolling(3).sum() == 3
+    df['down_streak'] = (df['close'].diff() < 0).rolling(3).sum() == 3
 
-    def classify(row):
+    def signal(row):
         if pd.isna(row['greed_mean']):
             return 0  # avoid early NaNs
-        if row['greed_index'] > 1.1 * row['greed_mean']:
+        if (row['greed_index'] > 1.1 * row['greed_mean']) and (row['up_streak']):
             return -1  # short
-        elif row['greed_index'] < 0.9 * row['greed_mean']:
+        elif (row['greed_index'] < 0.9 * row['greed_mean']) and (row['down_streak']):
             return 1   # long
         else:
             return 0   # hold
 
-    df['signal'] = df.apply(classify, axis=1)
+    df['signal'] = df.apply(signal, axis=1)
 
     return df
