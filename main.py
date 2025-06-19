@@ -14,7 +14,7 @@ df = assemble_dataset()
 df['greed_index'] = compute_greed_index(df)
 
 # Step 2: Generate signals
-df = generate_greed_index_signals(df, window=20)  # output includes 'signal'
+df = generate_greed_index_signals(df, window=20, price_thresh=0.05)  # output includes 'signal'
 
 # Step 3: Save signals for inspection
 os.makedirs('data/raw_data', exist_ok=True)
