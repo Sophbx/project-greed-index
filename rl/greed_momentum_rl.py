@@ -29,7 +29,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 # ---------------- CONFIG ----------------
-CSV_PATH = "data/Combined_data_2000.csv"     # your data file
+CSV_PATH = "data/raw_data/Combined_data_2000.csv"     # your data file
 FEATURE_COLS = [
     "greed_index"
 ]

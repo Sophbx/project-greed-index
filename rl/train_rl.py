@@ -3,7 +3,7 @@ import numpy as np
 from stable_baselines3 import PPO
 from sp500_env import SP500GreedEnv
 
-CSV_PATH = "data/Combined_data_2000.csv"
+CSV_PATH = "data/raw_data/Combined_data_2000.csv"
 
 env = SP500GreedEnv(CSV_PATH, lookback=5)
 

@@ -2,7 +2,7 @@ import pandas as pd
 from sp500_env import SP500GreedEnv
 from stable_baselines3 import PPO
 
-env   = SP500GreedEnv("data/Combined_data_2000.csv", lookback=5)
+env   = SP500GreedEnv("data/raw_data/Combined_data_2000.csv", lookback=5)
 model = PPO.load("ppo_sp500_greed")
 
 obs, _ = env.reset()
