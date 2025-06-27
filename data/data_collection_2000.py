@@ -6,7 +6,7 @@ import yfinance as yf
 from greed_fear_index import normalize, compute_greed_index
 
 # 1. Fetch OHLCV data
-def fetch_ohlcv(ticker, start ='2000-01-01', end = '2025-06-10'):
+def fetch_ohlcv(ticker, start ='2000-01-01', end = '2025-06-27'):
     """
     Download OHLCV data for a given ticker.
     Returns a DataFrame with columns: open, high, low, close, volume.

@@ -1,6 +1,8 @@
 # main.py
 import os
 import pandas as pd
+# Decide which data collection python file to use: 1) If want 2000-present, write "from data.data_collection_2000"; 
+#                                                  2) If want 2010-present, write "from data.data_collection_2010";
 from data.data_collection_2010 import assemble_dataset
 from model.strategy_basic import greed_signal
 from data.greed_fear_index import compute_greed_index
