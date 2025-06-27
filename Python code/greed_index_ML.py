@@ -84,13 +84,18 @@ print("样本总数 :", len(df))
 print("正类比例 :", df["pullback"].mean())
 
 # 6. 动态阈值 & 信号平滑
-thresh = y_oof_prob.rolling(20).quantile(0.90)
-signal = (y_oof_prob > thresh) & (y_oof_prob.shift(1) > thresh.shift(1))
+thresh_high = y_oof_prob.rolling(20).quantile(0.90)
+thresh_low = y_oof_prob.rolling(20).quantile(0.10)
+
+signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1))
+signal_buy = (y_oof_prob < thresh_low) & (y_oof_prob.shift(1) < thresh_low.shift(1))
+
+signal = np.select([signal_risk, signal_buy], [1, 2], default = 0).astype(int)
 
 # 7. 输出
 out = df.loc[X_all.index, ["close"]].copy()
 out["p_pullback"] = y_oof_prob
-out["signal"]     = signal.astype(int)
+out["signal"]     = signal
 out.to_csv(OUT_FILE)
 print(f"已保存信号文件: {OUT_FILE}")
 
