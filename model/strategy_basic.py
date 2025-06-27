@@ -1,6 +1,6 @@
 import pandas as pd
 
-def generate_greed_index_signals(df: pd.DataFrame, window: int = 20, price_thresh: float = 0.05) -> pd.DataFrame:
+def greed_signal(df: pd.DataFrame, window: int = 20, price_thresh: float = 0.05) -> pd.DataFrame:
     """
     Adds trading signals based on comparison between current greed index and its rolling mean.
     Use the standard window period of 20 days here.
