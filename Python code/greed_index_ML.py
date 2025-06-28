@@ -85,15 +85,21 @@ print("正类比例 :", df["pullback"].mean())
 
 # 6. 动态阈值 & 信号平滑
 thresh_high = y_oof_prob.rolling(20).quantile(0.90)
-thresh_low = y_oof_prob.rolling(20).quantile(0.10)
+thresh_low = y_oof_prob.rolling(20).quantile(0.05)
 
 signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1))
-signal_buy = (y_oof_prob < thresh_low) & (y_oof_prob.shift(1) < thresh_low.shift(1))
 
-signal = np.select([signal_risk, signal_buy], [1, 2], default = 0).astype(int)
+greed_max_20 = df["greed_index"].shift(1).rolling(window = 20).max()
+signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29))
+'''
+signal_buy = (y_oof_prob < thresh_low) & (y_oof_prob.shift(1) > thresh_low.shift(1))
+'''
+both_signal = signal_risk & signal_buy
+
+signal = np.select([both_signal, signal_risk, signal_buy], [3, 1, 2], default = 0).astype(int)
 
 # 7. 输出
-out = df.loc[X_all.index, ["close"]].copy()
+out = df.loc[X_all.index, ["close", "greed_index"]].copy()
 out["p_pullback"] = y_oof_prob
 out["signal"]     = signal
 out.to_csv(OUT_FILE)
