@@ -6,7 +6,7 @@ import pandas as pd
 from data.data_collection_2010 import assemble_dataset
 from model.strategy_basic import greed_signal
 from data.greed_fear_index import compute_greed_index
-from analysis.backtest_basic import backtest
+from analysis.backtest import backtest
 from analysis.metrics import evaluate_strategy
 from analysis.logger import log_metrics
 from analysis.plot import plot_equity_curve, plot_drawdown, plot_greed_vs_price
