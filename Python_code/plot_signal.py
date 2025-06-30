@@ -64,6 +64,16 @@ def main() -> None:
             s=70, marker="^", color="tab:red",
             label="Signal = 2"
         )
+    
+    # --- Signal == 3 ---
+    sig3 = df_sub[df_sub["signal"] == 3]
+    if not sig3.empty:
+        plt.scatter(
+            sig3["Date"], sig3["close"],
+            s=70, marker="d", color="tab:purple",
+            label="Signal = 3"
+        )
+
 
     plt.xlabel("Date")
     plt.ylabel("Close Price")
