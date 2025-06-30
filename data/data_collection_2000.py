@@ -128,7 +128,7 @@ if __name__ == '__main__':
     run_tests()
     data = assemble_dataset()
 
-# Normalize
+    # Normalize
     data['norm_rsi'] = normalize(data['rsi'])
     data['norm_macd'] = normalize(data['macd'])
     data['norm_zscore'] = normalize(data['price_zscore'], -3, 3)

@@ -9,11 +9,11 @@ from sklearn.preprocessing import PolynomialFeatures
 from greed_fear_index import normalize
 
 # 参数
-DATA_PATH   = "data/raw_data/Combined_data_2000.csv"
+DATA_PATH   = "data/raw_data/Combined_data_NVDA_2010.csv"
 HORIZON     = 20
 DD_THRESH   = -0.1
 N_SPLITS    = 5
-OUT_FILE    = "data/raw_data/Combined_data_2000.csv"
+OUT_FILE    = "data/raw_data/Combined_data_NVDA_2010.csv"
 
 # 1. 读取与初步特征
 df = (

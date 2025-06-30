@@ -54,7 +54,7 @@ def plot_close_greed_pullback_and_signal(csv_path: str, start_date: str = None, 
 
 if __name__ == "__main__":
     #
-    csv_file_path = 'data/raw_data/Combined_data_2000.csv'
+    csv_file_path = 'data/raw_data/Combined_data_NVDA_2010.csv'
     s = input("Please enter the start date (YYYY-MM_DD): ").strip()
     e = input("Please enter the end date (YYYY-MM_DD): ").strip()
 

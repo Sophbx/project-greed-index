@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 
-from data.greed_fear_index import normalize, compute_greed_index, compute_fear_index
+from greed_fear_index import normalize, compute_greed_index_complex, compute_fear_index
 
 # Fetch OHLCV data
 def fetch_ohlcv(ticker, start ='2010-01-01', end = '2025-06-27'):
@@ -99,13 +99,13 @@ def assemble_dataset(start: str = '2010-01-01', end: str = '2025-06-18') -> pd.D
     warmup_days = 100  # Safe warm-up buffer
     start_with_buffer = (start_dt - pd.Timedelta(days=warmup_days)).strftime('%Y-%m-%d')
 
-    spy = fetch_ohlcv('SPY', start=start_with_buffer, end=end)
+    nvda = fetch_ohlcv('NVDA', start=start_with_buffer, end=end)
     vix = fetch_ohlcv('^VIX', start=start_with_buffer, end=end)
 
-    spy_tech = compute_technical_indicators(spy)
-    vol_20d_ma = spy['volume'].rolling(20).mean().rename("volume_20d_ma")
+    nvda_tech = compute_technical_indicators(nvda)
+    vol_20d_ma = nvda['volume'].rolling(20).mean().rename("volume_20d_ma")
 
-    df = spy.join(spy_tech, how='inner') \
+    df = nvda.join(nvda_tech, how='inner') \
              .join(vix['close'].rename('vix_close'), how = 'left') \
              .join(vol_20d_ma, how = 'left')
     
@@ -115,9 +115,9 @@ def assemble_dataset(start: str = '2010-01-01', end: str = '2025-06-18') -> pd.D
 
 # Basic test suite
 def run_tests():
-    df_short = fetch_ohlcv('SPY', start = '2020-01-01', end = '2020-01-10')
+    df_short = fetch_ohlcv('NVDA', start = '2020-01-01', end = '2020-01-10')
     assert not df_short.empty, "fetch_ohlcv returned empty DataFrame for short period"
-    df = fetch_ohlcv('SPY', start = '2021-01-01', end = '2021-03-01')
+    df = fetch_ohlcv('NVDA', start = '2021-01-01', end = '2021-03-01')
     tech = compute_technical_indicators(df, z_window = 20)
     expected = {'rsi', 'macd', 'macd_signal', 'atr', 'price_zscore'}
     missing = expected - set(tech.columns)
@@ -127,20 +127,20 @@ def run_tests():
 
 if __name__ == '__main__':
     run_tests()
-    # data = assemble_dataset()
+    data = assemble_dataset()
 
     # Nomralize
-    # data['norm_rsi'] = normalize(data['rsi'])
-    # data['norm_macd'] = normalize(data['macd'])
-    # data['norm_zscore'] = normalize(data['price_zscore'])
-    # data['norm_vix'] = 1 - normalize(data['vix_close'])
+    data['norm_rsi'] = normalize(data['rsi'])
+    data['norm_macd'] = normalize(data['macd'])
+    data['norm_zscore'] = normalize(data['price_zscore'])
+    data['norm_vix'] = 1 - normalize(data['vix_close'])
 
     # The core index
-    # data['greed_index'] = compute_greed_index(data)
-    # data['fear_index'] = compute_fear_index(data['greed_index'])
+    data['greed_index'] = compute_greed_index_complex(data)
+    data['fear_index'] = compute_fear_index(data['greed_index'])
     
-    # os.makedirs('raw_data', exist_ok = True)
-    # data.to_csv('raw_data/Combined_data_2010.csv', index = True)
-    # print("Data collection and feature assembly complete. CSV saved to 'raw_data/Combined_data_2010.csv'.")
+    os.makedirs('data/raw_data', exist_ok = True)
+    data.to_csv('data/raw_data/Combined_data_NVDA_2010.csv', index = True)
+    print("Data collection and feature assembly complete. CSV saved to 'raw_data/Combined_data_2010.csv'.")
 
 
