@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Interactive plot of close price with two types of signal markers.
+Interactive plot of close price, greed score, pullback probability with two types of signal markers.
 """
 import sys
 from pathlib import Path

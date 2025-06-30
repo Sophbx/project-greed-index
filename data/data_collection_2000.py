@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 
-from greed_fear_index import normalize, compute_greed_index
+from greed_fear_index import normalize, compute_greed_index_simple
 
 # 1. Fetch OHLCV data
 def fetch_ohlcv(ticker, start ='2000-01-01', end = '2025-06-27'):
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     data['norm_vix'] = 1 - normalize(data['vix_close'])
 
     # The core index
-    data['greed_index'] = compute_greed_index(data)
+    data['greed_index'] = compute_greed_index_simple(data)
 
     os.makedirs('data', exist_ok = True)
     data.to_csv('data/raw_data/Combined_data_2000.csv', index = True)

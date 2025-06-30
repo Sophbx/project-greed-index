@@ -6,7 +6,7 @@ def normalize(series: pd.Series, low=None, high=None) -> pd.Series:
     if high is None: high = series.max()
     return ((series - low) / (high - low)).clip(0, 1)
 
-def compute_greed_index_simple(df: pd.DataFrame) -> pd.Serirs:
+def compute_greed_index_simple(df: pd.DataFrame) -> pd.Series:
     """
     Compute a custom greed index from technical indicators.
     Assumes df contains: rsi, macd, price_zscore, and vix_close.
