@@ -96,7 +96,7 @@ greed_low_bool  = (df["greed_index"] <= 0.4).astype(int)
 
 # rolling().sum() 计算最近 N 天 True 的个数；满足连续条件 → sum == N
 consec_high = greed_high_bool.rolling(window = 12, min_periods = 12).sum() == 12
-consec_low  = greed_low_bool .rolling(window =  100, min_periods = 100).sum() == 100
+consec_low  = greed_low_bool .rolling(window = 6, min_periods = 6).sum() == 6
 
 signal_risk = consec_high.loc[X_all.index]
 '''
