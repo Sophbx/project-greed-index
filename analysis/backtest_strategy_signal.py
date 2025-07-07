@@ -1,4 +1,5 @@
 import pandas as pd
+import yfinance as yf
 
 def backtest_buy_sell_strategy(df: pd.DataFrame) -> pd.DataFrame:
     trades = []
@@ -56,8 +57,25 @@ def compute_return_series(df: pd.DataFrame, trades: pd.DataFrame) -> pd.DataFram
 from metrics import evaluate_strategy
 
 if __name__ == "__main__":
-    df = pd.read_csv("data/raw_data/Combined_data_NVDA_2010.csv", parse_dates=["Date"])
+    df = pd.read_csv("data/raw_data/greed_index_ml.csv", parse_dates=["Date"])
     df.set_index("Date", inplace=True)
+
+
+    # ---------- 新增：抓取含分红的 Adj Close ----------
+    ticker = "SPY"                               # 如需换别的指数基金可改
+    start  = (df.index[0] - pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    end    = (df.index[-1] + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+
+    data = yf.download(ticker, start=start, end=end,
+                       auto_adjust=True, progress=False)
+    col  = "Adj Close" if "Adj Close" in data.columns else "Close"
+    adj  = data[[col]].squeeze("columns").rename("close")      # ← 列名直接叫 close
+
+    # 与信号日期对齐，停牌日用前值填补
+    df["close"] = adj.reindex(df.index).ffill()
+
+    if df["close"].isna().any():
+        raise ValueError("Adj Close 数据存在缺口，无法对齐完整日期范围")
 
     trades = backtest_buy_sell_strategy(df)
     df = compute_return_series(df, trades)

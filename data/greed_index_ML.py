@@ -9,11 +9,11 @@ from sklearn.preprocessing import PolynomialFeatures
 from greed_fear_index import normalize
 
 # 参数
-DATA_PATH   = "data/raw_data/Combined_data_NVDA_2010.csv"
+DATA_PATH   = "data/raw_data/Combined_data_2000.csv"
 HORIZON     = 20
 DD_THRESH   = -0.1
 N_SPLITS    = 5
-OUT_FILE    = "data/raw_data/Combined_data_NVDA_2010.csv"
+OUT_FILE    = "data/raw_data/greed_index_ml.csv"
 
 # 1. 读取与初步特征
 df = (
@@ -90,16 +90,26 @@ price_3d_ago = df["close"].shift(3)
 price_increase_3d = (df["close"] - price_3d_ago) / price_3d_ago
 risk_condition = price_increase_3d >= 0.05
 
-signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1)) & risk_condition.loc[X_all.index]
+# --- 2. Greed Index 连续高/低位布尔序列 ---
+greed_high_bool = (df["greed_index"] >= 0.65).astype(int)
+greed_low_bool  = (df["greed_index"] <= 0.4).astype(int)
 
-greed_max_20 = df["greed_index"].shift(1).rolling(window = 20).max()
-signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29))
+# rolling().sum() 计算最近 N 天 True 的个数；满足连续条件 → sum == N
+consec_high = greed_high_bool.rolling(window = 12, min_periods = 12).sum() == 12
+consec_low  = greed_low_bool .rolling(window =  100, min_periods = 100).sum() == 100
+
+signal_risk = consec_high.loc[X_all.index]
 '''
-signal_buy = (y_oof_prob < thresh_low) & (y_oof_prob.shift(1) > thresh_low.shift(1))
+(y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1)) 
+& risk_condition.loc[X_all.index]
 '''
+
+greed_max_20 = df["greed_index"].shift(1).rolling(window = 10).max()
+signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29)) | consec_low.loc[X_all.index]
+
 both_signal = signal_risk & signal_buy
 
-signal = np.select([signal_risk, signal_buy], [1, 2], default = 0).astype(int)
+signal = np.select([both_signal, signal_risk, signal_buy], [3, 1, 2], default = 0).astype(int)
 
 # 7. 输出
 out = df.loc[X_all.index, ["close", "greed_index"]].copy()
