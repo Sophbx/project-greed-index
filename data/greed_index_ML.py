@@ -98,7 +98,7 @@ greed_low_bool  = (df["greed_index"] <= 0.45).astype(int)
 consec_high = greed_high_bool.rolling(window = 10, min_periods = 10).sum() == 10
 consec_low  = greed_low_bool .rolling(window = 6, min_periods = 6).sum() == 6
 
-signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1))
+signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1)) 
 
 '''
 & risk_condition.loc[X_all.index]
