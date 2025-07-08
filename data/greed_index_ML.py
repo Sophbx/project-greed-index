@@ -91,22 +91,24 @@ price_increase_3d = (df["close"] - price_3d_ago) / price_3d_ago
 risk_condition = price_increase_3d >= 0.05
 
 # --- 2. Greed Index 连续高/低位布尔序列 ---
-greed_high_bool = (df["greed_index"] >= 0.65).astype(int)
-greed_low_bool  = (df["greed_index"] <= 0.4).astype(int)
+greed_high_bool = (df["greed_index"] >= 0.6).astype(int)
+greed_low_bool  = (df["greed_index"] <= 0.5).astype(int)
 
 # rolling().sum() 计算最近 N 天 True 的个数；满足连续条件 → sum == N
-consec_high = greed_high_bool.rolling(window = 12, min_periods = 12).sum() == 12
-consec_low  = greed_low_bool .rolling(window = 6, min_periods = 6).sum() == 6
+consec_high = greed_high_bool.rolling(window = 20, min_periods = 20).sum() == 20
+consec_low  = greed_low_bool .rolling(window = 5, min_periods = 5).sum() == 5
 
-signal_risk = consec_high.loc[X_all.index]
+signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1))
 '''
 (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1)) 
 & risk_condition.loc[X_all.index]
 '''
 
 greed_max_20 = df["greed_index"].shift(1).rolling(window = 10).max()
-signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29)) | consec_low.loc[X_all.index]
-
+signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29))
+'''
+signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29))
+'''
 both_signal = signal_risk & signal_buy
 
 signal = np.select([both_signal, signal_risk, signal_buy], [3, 1, 2], default = 0).astype(int)
