@@ -106,7 +106,8 @@ signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.sh
 '''
 & risk_condition.loc[X_all.index]
 '''
-
+# Market Undervalued:
+# 1. current greed index <= greed_max_20 - 0.29 (by obs); 2. consec_low occurs
 signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29)) & consec_low.loc[X_all.index]
 
 both_signal = signal_risk & signal_buy
@@ -117,18 +118,5 @@ signal = np.select([both_signal, signal_risk, signal_buy], [3, 1, 2], default = 
 out = df.loc[X_all.index, ["close", "greed_index"]].copy()
 out["p_pullback"] = y_oof_prob
 out["signal"]     = signal
-# Merge the two columns back into the full dataset
-df_main = pd.read_csv(OUT_FILE, parse_dates=["Date"])
-df_main.set_index("Date", inplace=True)
-
-# Make sure index matches
-out.index.name = "Date"
-
-# Drop existing columns if they already exist
-df_main.drop(columns=["p_pullback", "signal"], errors="ignore", inplace=True)
-
-# Join and save
-df_updated = df_main.join(out[["p_pullback", "signal"]])
-df_updated.to_csv(OUT_FILE)
-print("[UPDATED] Columns 'p_pullback' and 'signal' merged into Combined_data_2000.csv")
-print(f"Signal by ML saved.")
+out.to_csv(OUT_FILE)
+print(f"已保存信号文件: {OUT_FILE}")

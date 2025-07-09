@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 import warnings
 
-# ========= 用户可调参数 ========= #
+# Parameters for adjustments
 CSV_FILE      = Path("data/raw_data/greed_index_ml.csv")
 START_DATE    = "2005-01-03"
 TICKER        = "SPY"
@@ -34,11 +34,10 @@ PERIODS = [
     ("2016-01-01", "2020-12-31"),
     ("2021-01-01", "2025-07-07"),
 ]
-# ================================= #
 
-# ---------- 辅助函数 ---------- #
+# Helper Functions 
 def load_signal(csv_path: Path, start_date: str) -> pd.DataFrame:
-    """读取信号，只保留交易日字段"""
+    """Read Data during the input timestamp"""
     df = pd.read_csv(csv_path, parse_dates=["Date"])
     df = df.loc[df["Date"] >= start_date, ["Date", "signal"]].copy()
     df.set_index("Date", inplace=True)
@@ -55,15 +54,14 @@ def fetch_adj_ohlc(ticker: str, start: str, end: str) -> pd.DataFrame:
     px.columns = ["adj_open", "adj_close"]
     return px
 
-# ---------- 核心计算 ---------- #
+# Core Computation
 def calc_nav(df_sig: pd.DataFrame,
              px: pd.DataFrame,
              fee_bps: float = 0.0,
              slippage_bps: float = 0.0,
              rf_daily: float = 0.0):
     """
-    返回：
-        nav_df, strat_ret, bh_ret, trade_days, trade_log
+        Return: nav_df, strat_ret, bh_ret, trade_days, trade_log
     """
     # === 1) 只保留价格与信号都存在的交易日 ===
     idx = df_sig.index.intersection(px.index)
@@ -73,7 +71,7 @@ def calc_nav(df_sig: pd.DataFrame,
     adj_open  = px.loc[idx, "adj_open"]
     adj_close = px.loc[idx, "adj_close"]
 
-    # === 2) 收益拆分 ===
+    # === 2) 收益分类 ===
     overnight_ret = (adj_open / adj_close.shift(1) - 1).fillna(0.0)
     intraday_ret  = (adj_close / adj_open - 1).fillna(0.0)
 
@@ -122,9 +120,10 @@ def _build_trade_log(nav_strategy: pd.Series, turnover: pd.Series) -> pd.DataFra
         prev_nav = nav_strategy.loc[dt]
     return pd.DataFrame(rows).set_index("Date")
 
-# ---------- 绩效指标 ---------- #
+# Metrics
 def perf_summary(nav: pd.Series, daily_ret: pd.Series,
                  excess_ret: pd.Series, annual_factor: int = 252):
+    """Print key metrics to measure the performance of the strategy"""
     total_ret = nav.iloc[-1] - 1
     years     = (nav.index[-1] - nav.index[0]).days / 365.25
     ann_ret   = (1 + total_ret) ** (1/years) - 1
