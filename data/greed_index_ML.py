@@ -21,7 +21,6 @@ df = (
       .sort_values("Date")
       .set_index("Date")
 )
-# 原始特征
 df["vol_ratio"]       = df["volume"] / df["volume_20d_ma"]
 df["norm_macd_signal"]= normalize(df["macd_signal"])
 df["norm_atr"]        = normalize(df["atr"])
@@ -39,7 +38,7 @@ df["max_drawdown"] = (future_min - df["close"]) / df["close"]
 df["pullback"]     = (df["max_drawdown"] <= DD_THRESH).astype(int)
 df = df.iloc[:-HORIZON]
 
-# 3. 滞后特征 & 交互项
+# 3. logistic regression model训练用的滞后特征 & 交互项
 base_feats = ["greed_index", "vol_ratio", "norm_macd_signal", "norm_atr"]
 for feat in base_feats:
     df[f"{feat}_lag1"] = df[feat].shift(1)
@@ -84,27 +83,29 @@ print("样本总数 :", len(df))
 print("正类比例 :", df["pullback"].mean())
 
 # 6. 动态阈值 & 信号平滑
-thresh_high = y_oof_prob.rolling(20).quantile(0.90)
-thresh_low = y_oof_prob.rolling(20).quantile(0.05)
+# Dynamic Quantile restriction
+thresh_high = y_oof_prob.rolling(20).quantile(0.90) # 过去20天内的数据的前10%线
+thresh_low = y_oof_prob.rolling(20).quantile(0.05) # 过去20天内的数据的后5%线
+
+# price restriction
 price_3d_ago = df["close"].shift(3)
 price_increase_3d = (df["close"] - price_3d_ago) / price_3d_ago
-risk_condition = price_increase_3d >= 0.05
+risk_condition = price_increase_3d >= 0.05 # price rise for more than 5% in the past 3 days
 
-# --- 2. Greed Index 连续高/低位布尔序列 ---
+# Greed Index restriction
+greed_max_20 = df["greed_index"].shift(1).rolling(window = 20).max()
 greed_high_bool = (df["greed_index"] >= 0.6).astype(int)
 greed_low_bool  = (df["greed_index"] <= 0.45).astype(int)
+consec_high = greed_high_bool.rolling(window = 10, min_periods = 10).sum() == 10 # greed index >=0.6 for the past 10 consecutive days
+consec_low  = greed_low_bool .rolling(window = 6, min_periods = 6).sum() == 6 # greed index <=0.45 for the past 6 consecutive days
 
-# rolling().sum() 计算最近 N 天 True 的个数；满足连续条件 → sum == N
-consec_high = greed_high_bool.rolling(window = 10, min_periods = 10).sum() == 10
-consec_low  = greed_low_bool .rolling(window = 6, min_periods = 6).sum() == 6
-
+# Market Overheated:
+# 1. pullback probab > thresh_high for 2 days; 2. consec_high occurs; 3. risk_condition occurs
 signal_risk = (y_oof_prob > thresh_high) & (y_oof_prob.shift(1) > thresh_high.shift(1)) & consec_high.loc[X_all.index]
 
 '''
 & risk_condition.loc[X_all.index]
 '''
-
-greed_max_20 = df["greed_index"].shift(1).rolling(window = 20).max()
 
 signal_buy = (df.loc[X_all.index, "greed_index"] < (greed_max_20.loc[X_all.index] - 0.29)) & consec_low.loc[X_all.index]
 
