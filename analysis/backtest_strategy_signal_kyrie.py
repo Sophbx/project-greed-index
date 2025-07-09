@@ -81,7 +81,7 @@ def calc_nav(df_sig: pd.DataFrame,
     map_weight = np.select(
         [df_sig["signal"] == 1,df_sig["signal"] == 2, df_sig["signal"] == 3],
         [0.0, 1.0, 0.8],
-        default=1.0
+        default=np.nan
     )
     weight_today = pd.Series(map_weight, index=df_sig.index).ffill()
     weight_today.iloc[0] = 1.0
